@@ -1,36 +1,49 @@
 package thread;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ThreadPoolTest1 {
 
         public static void main(String[] args) {
             BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(100);
-            ThreadFactory factory = r -> new Thread(r, "test-thread-pool");
+            ThreadFactory factory = r -> {
+                Thread thread = new Thread(r, "test-thread-pool");
+                thread.setDaemon(true);
+                return thread;
+            };
             ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10,
-                    3L, TimeUnit.SECONDS, queue, factory, new ThreadPoolExecutor.AbortPolicy());
-            int i=0;
+                    1L, TimeUnit.SECONDS, queue, factory, new ThreadPoolExecutor.AbortPolicy());
+            AtomicInteger i=new AtomicInteger(0);
+            CountDownLatch count=new CountDownLatch(80);
             while (true) {
-                i++;
+                i.incrementAndGet();
+                if(i.get()==81)break;
                 executor.submit(() -> {
                     try {
-                        System.out.println(queue.size());
-                        Thread.sleep(1000);
+                        System.out.println(i);
+                        Thread.sleep(300);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    //count.countDown();
                 });
-                if(i==80)break;
+
             }
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+//            try {
+//                count.await();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
             System.out.println("活动的线程数"+executor.getPoolSize());
             System.out.println("活动的线程数"+executor.getActiveCount());
             executor.shutdownNow();
-            System.out.println(executor.isShutdown());
+//            System.out.println(executor.isShutdown());
 
     }
 }
