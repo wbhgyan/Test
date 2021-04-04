@@ -14,6 +14,8 @@ public class ThreadPoolTest1 {
             };
             ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10,
                     1L, TimeUnit.SECONDS, queue, factory, new ThreadPoolExecutor.AbortPolicy());
+            System.out.println("活动的线程数"+executor.getPoolSize());
+            System.out.println("活动的线程数"+executor.getActiveCount());
             AtomicInteger i=new AtomicInteger(0);
             CountDownLatch count=new CountDownLatch(80);
             while (true) {
@@ -40,9 +42,11 @@ public class ThreadPoolTest1 {
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
+            executor.shutdown();
             System.out.println("活动的线程数"+executor.getPoolSize());
             System.out.println("活动的线程数"+executor.getActiveCount());
-            executor.shutdownNow();
+
+
 //            System.out.println(executor.isShutdown());
 
     }
